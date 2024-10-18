@@ -43,6 +43,7 @@ export default function Index() {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={{ color: "red", fontSize: 30 }}>Memory Pattern</Text>
       <Button title="Go to Game" onPress={() => router.push("/game")} />
+      <Button title="Go To Highscore" onPress={() => router.push("/highscore")} />
       <Button title="Logout" onPress={() => doLogout()} />
     </ScrollView>
   );

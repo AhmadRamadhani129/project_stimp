@@ -24,8 +24,6 @@ function Login () {
           alert('Username or password is incorrect');
         }
       };
-    
-
         return (
             <Card>
             <Card.Title>Silakan Login</Card.Title>
