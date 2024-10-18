@@ -1,153 +1,158 @@
 import React, { useState, useEffect } from "react";
-import {StyleSheet,View,Text,TouchableOpacity,Alert,FlatList,} from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
+import { Button } from "@rneui/themed";
 
-export default function MemoryGame() {
-  const [level, setLevel] = useState(1);
-  const [pattern, setPattern] = useState<number[]>([]);
-  const [userPattern, setUserPattern] = useState<number[]>([]);
-  const [userTurn, setUserTurn] = useState(false);
-  const [activeTile, setActiveTile] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
+interface GridProps {
+  rows: number;
+  columns: number;
+  highlightedKotak: number[];
+  onLevelComplete: () => void; // Fungsi untuk level up
+}
 
-  const getGridSize = () => 3 * (level + 2);
-
-  const getPatternCount = () => level + 2;
+const Grid: React.FC<GridProps> = ({
+  rows,
+  columns,
+  highlightedKotak,
+  onLevelComplete,
+}) => {
+  const [activeKotak, setActiveKotak] = useState<number[]>([]);
+  const [incorrectKotak, setIncorrectKotak] = useState<number[]>([]);
 
   useEffect(() => {
-    startNewGame();
-  }, []);
+    setActiveKotak(highlightedKotak);
+    setIncorrectKotak([]);
 
-  const startNewGame = () => {
-    setLevel(1);
-    setScore(0);
-    generatePattern();
-  };
+    const timer = setTimeout(() => {
+      setActiveKotak([]);
+      setIncorrectKotak([]);
+    }, 3000);
 
-  const generatePattern = () => {
-    setUserTurn(false);
-    const gridSize = getGridSize();
-    let newPattern: number[] = [];
-    for (let i = 0; i < getPatternCount(); i++) {
-      newPattern.push(Math.floor(Math.random() * gridSize));
-    }
-    setPattern(newPattern);
-    showPattern(newPattern);
-  };
+    return () => clearTimeout(timer);
+  }, [highlightedKotak]);
 
-  function showPattern(newPattern: number[]) {
-    let i = 0;
-    const showNextTile = () => {
-      if (i < newPattern.length) {
-        setActiveTile(newPattern[i]);
-        setTimeout(() => {
-          setActiveTile(null);
-          i++;
-          setTimeout(showNextTile, 300);
-        }, 500);
-      } else {
-        setUserTurn(true);
-        setUserPattern([]);
-      }
-    };
-    showNextTile();
-  }
+  const handleBoxPress = (index: number) => {
+    if (highlightedKotak.includes(index)) {
+      setActiveKotak((prevKotak) => [...prevKotak, index]);
 
-  const onTileTapped = (index: number) => {
-    if (!userTurn) return;
-
-    const newUserPattern = [...userPattern, index];
-    setUserPattern(newUserPattern);
-    setActiveTile(index);
-
-    setTimeout(() => {
-      setActiveTile(null);
-
-      // Cek jika pola sudah sesuai
-      if (newUserPattern.length === pattern.length) {
-        checkPattern(newUserPattern);
-      }
-    }, 300);
-  };
-
-  const checkPattern = (newUserPattern: number[]) => {
-    if (newUserPattern.join() === pattern.join()) {
-      setScore(score + 1);
-      if (level < 5) {
-        nextLevel();
-      } else {
-        showWinDialog();
+      // Jika semua kotak yang benar sudah ditekan
+      if (activeKotak.length + 1 === highlightedKotak.length) {
+        onLevelComplete(); // Memanggil fungsi untuk menaikkan level
       }
     } else {
-      showGameOverDialog();
+      setIncorrectKotak((prevKotak) => [...prevKotak, index]);
     }
   };
-
-  const nextLevel = () => {
-    setLevel(level + 1);
-    generatePattern();
-  };
-
-  const showGameOverDialog = () => {
-    Alert.alert("Game Over", `Skor Anda: ${score}`, [
-      { text: "Main Lagi", onPress: startNewGame },
-    ]);
-  };
-
-  const showWinDialog = () => {
-    Alert.alert("Anda Menang!", `Skor Anda: ${score}`, [
-      { text: "Main Lagi", onPress: startNewGame },
-    ]);
-  };
-
-  const renderTile = ({ index }: { index: number }) => (
-    <TouchableOpacity
-      style={[
-        styles.tile,
-        { backgroundColor: activeTile === index ? "red" : "blue" },
-      ]}
-      onPress={() => onTileTapped(index)}
-    />
-  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.score}>Skor: {score}</Text>
-      <Text style={styles.level}>Level: {level}</Text>
-      <FlatList
-        data={Array.from({ length: getGridSize() }, (_, i) => i)}
-        renderItem={renderTile}
-        numColumns={3}
-        keyExtractor={(item) => item.toString()}
-        scrollEnabled={false}
-        contentContainerStyle={styles.grid}
+      {Array.from({ length: rows * columns }).map((_, index) => (
+        <View
+          key={index}
+          style={[
+            styles.box,
+            {
+              width: 150 / columns - 10,
+              height: 150 / rows - 10,
+              backgroundColor: activeKotak.includes(index)
+                ? "green"
+                : incorrectKotak.includes(index)
+                ? "red"
+                : "gray",
+            },
+          ]}
+        >
+          <View style={styles.buttonContainer}>
+            <Button
+              size="lg"
+              title=""
+              onPress={() => handleBoxPress(index)}
+              color="transparent"
+            />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+};
+
+const App: React.FC = () => {
+  const [level, setLevel] = useState(1);
+  const [highlightedKotak, setHighlightedKotak] = useState<number[]>([]);
+  const columns = 3; // Definisikan jumlah kolom tetap di sini
+
+  useEffect(() => {
+    const generateHighlightedKotak = () => {
+      const numberOfKotakToHighlight = level + 2; // 3 untuk level 1, 4 untuk level 2, 5 untuk level 3
+      const kotakToHighlight: number[] = [];
+
+      while (kotakToHighlight.length < numberOfKotakToHighlight) {
+        const randomKotak = Math.floor(Math.random() * (rows * columns));
+        if (!kotakToHighlight.includes(randomKotak)) {
+          kotakToHighlight.push(randomKotak);
+        }
+      }
+      setHighlightedKotak(kotakToHighlight);
+    };
+
+    generateHighlightedKotak();
+  }, [level]);
+
+  const handleLevelUp = () => {
+    if (level < 3) {
+      // Maksimal level 3
+      setLevel((prevLevel) => prevLevel + 1);
+    } else {
+      Alert.alert("Selamat!", "Anda telah menyelesaikan semua level!");
+    }
+  };
+
+  const rows = 3 + level - 1; // 3 untuk level 1, 4 untuk level 2, 5 untuk level 3
+
+  return (
+    <View style={styles.appContainer}>
+      <Grid
+        rows={rows}
+        columns={columns} // Menggunakan nilai kolom yang sudah didefinisikan
+        highlightedKotak={highlightedKotak}
+        onLevelComplete={handleLevelUp} // Mengirim fungsi untuk level up
       />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
+  appContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#F0F0F0",
   },
-  score: {
-    fontSize: 24,
-    marginBottom: 20,
+  container: {
+    width: 150,
+    height: 150,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    backgroundColor: "#ADD8E6",
+    padding: 5,
+    
   },
-  level: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  grid: {
-    justifyContent: "center",
-  },
-  tile: {
-    width: 100,
-    height: 100,
-    margin: 4,
+  box: {
+    margin: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
+    elevation: 5,
     justifyContent: "center",
     alignItems: "center",
   },
+  buttonContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: "100%",
+  },
 });
+
+export default App;
