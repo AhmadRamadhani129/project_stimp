@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Component } from "react";
 import { View, StyleSheet, Alert, Text } from "react-native";
 import { Button } from "@rneui/themed";
 import { useRouter } from "expo-router";
@@ -84,6 +84,24 @@ const Grid: React.FC<GridProps> = ({
   );
 };
 
+function toHHMMSS(v: any) {
+  // Pastikan v bisa diubah menjadi angka
+  const time = parseInt(v, 10);
+
+  // Jika v tidak bisa diubah menjadi angka (NaN), berikan return "Invalid input"
+  if (isNaN(time)) {
+    return "Invalid input"; // Tampilkan pesan error jika input tidak valid
+  }
+
+  const hours = Math.floor(time / 3600);
+  const minutes = Math.floor((time - hours * 3600) / 60);
+  const seconds = time - hours * 3600 - minutes * 60;
+  const hours_str = hours < 10 ? "0" + hours : hours.toString();
+  const minutes_str = minutes < 10 ? "0" + minutes : minutes.toString();
+  const seconds_str = seconds < 10 ? "0" + seconds : seconds.toString();
+  return hours_str + ":" + minutes_str + ":" + seconds_str; // Menggunakan template string
+}
+
 const App: React.FC = () => {
   const router = useRouter();
   const [level, setLevel] = useState(1);
@@ -91,6 +109,7 @@ const App: React.FC = () => {
   const [score, setScore] = useState(0); // Skor dimulai dari 0
   const [gameOver, setGameOver] = useState(false);
   const columns = 3; // Definisikan jumlah kolom tetap di sini
+  const [count, setCount] = useState(60);
 
   useEffect(() => {
     const generateHighlightedKotak = () => {
@@ -109,11 +128,24 @@ const App: React.FC = () => {
     generateHighlightedKotak();
   }, [level]);
 
+  useEffect(() => {
+    if (count > 0) {
+      const timer = setInterval(() => {
+        setCount((prevCount) => prevCount - 1);
+      }, 1000);
+
+      return () => clearInterval(timer); // Bersihkan interval ketika komponen di-unmount atau count berubah
+    } else {
+      handleGameOver(); // Timer habis, jalankan game over
+    }
+  }, [count]);
+
   const nextLevel = () => {
-    if (level < 3) {
+    if (level < 5) {
       // Maksimal level 3
       setLevel((prevLevel) => prevLevel + 1);
       setScore((prevScore) => prevScore + 1); // Tambah 10 poin per level
+      setCount(60);
     } else {
       Alert.alert("Selamat!", "Anda telah menyelesaikan semua level!");
     }
@@ -148,6 +180,7 @@ const App: React.FC = () => {
   return (
     <View style={styles.appContainer}>
       <Text style={styles.scoreText}>Score: {score}</Text>
+      <Text>Timer: {toHHMMSS(count)}</Text>
       <Grid
         rows={rows}
         columns={columns} // Menggunakan nilai kolom yang sudah didefinisikan
