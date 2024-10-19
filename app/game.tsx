@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Dimensions, Alert, Text } from "react-native";
+import { View, StyleSheet, Alert, Text } from "react-native";
 import { Button } from "@rneui/themed";
 import { useRouter } from "expo-router";
-
-
-const { width, height } = Dimensions.get("window");
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface GridProps {
   rows: number;
@@ -52,13 +49,6 @@ const Grid: React.FC<GridProps> = ({
     } else {
       setIncorrectKotak((prevKotak) => [...prevKotak, index]);
       onGameOver();
-      // setIncorrectAnswer((prevAnswer) => {
-      //   const newAnswer = prevAnswer + 1;
-      //   if (newAnswer >= 3) {
-      //     onGameOver();
-      //   }
-      //   return incorrectAnswer;
-      // });
     }
   };
 
@@ -95,7 +85,7 @@ const Grid: React.FC<GridProps> = ({
 };
 
 const App: React.FC = () => {
-  const router = useRouter()
+  const router = useRouter();
   const [level, setLevel] = useState(1);
   const [highlightedKotak, setHighlightedKotak] = useState<number[]>([]);
   const [score, setScore] = useState(0); // Skor dimulai dari 0
@@ -129,9 +119,24 @@ const App: React.FC = () => {
     }
   };
 
-  const handleGameOver = () => {
+  const handleGameOver = async () => {
     router.push({ pathname: "/result", params: { score } });
     setGameOver(true);
+    try {
+      // Ambil skor yang sudah tersimpan
+      const highscore = await AsyncStorage.getItem("HighscoreShared");
+      let highscoreList = highscore ? highscore.split(",").map(Number) : [];
+
+      // Tambahkan skor baru ke dalam daftar
+      highscoreList.push(score);
+
+      // Simpan kembali ke AsyncStorage
+      await AsyncStorage.setItem("HighscoreShared", highscoreList.join(","));
+
+      // Navigasi ke halaman hasil (ResultPage) dengan mengirim skor
+    } catch (error) {
+      console.error("Error saving high score:", error);
+    }
   };
 
   const rows = 3 + level - 1; // 3 untuk level 1, 4 untuk level 2, 5 untuk level 3

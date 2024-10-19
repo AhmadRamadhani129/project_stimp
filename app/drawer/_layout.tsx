@@ -8,11 +8,11 @@ const Drawer = createDrawerNavigator();
 export default function DrawerLayout() {
   return (
     <Drawer.Navigator initialRouteName="index">
-      <Drawer.Screen name="index" component={Home}
+      <Drawer.Screen name="Home" component={Home}
                      options={{ drawerLabel: 'Home' }} />
-     <Drawer.Screen name="highscore" component={HighScore}
+     <Drawer.Screen name="Highscore" component={HighScore}
                      options={{ drawerLabel: 'Highscore' }} />
-     <Drawer.Screen name="logout" component={Logout}
+     <Drawer.Screen name="Logout" component={Logout}
                      options={{ drawerLabel: 'Logout' }} />
    </Drawer.Navigator>
   );
