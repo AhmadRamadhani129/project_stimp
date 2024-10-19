@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Dimensions, Alert, Text } from "react-native";
 import { Button } from "@rneui/themed";
+import { useRouter } from "expo-router";
+
 
 const { width, height } = Dimensions.get("window");
+
 
 interface GridProps {
   rows: number;
@@ -48,13 +51,14 @@ const Grid: React.FC<GridProps> = ({
       }
     } else {
       setIncorrectKotak((prevKotak) => [...prevKotak, index]);
-      setIncorrectAnswer((prevAnswer) => {
-        const newAnswer = prevAnswer + 1;
-        if (newAnswer >= 3) {
-          onGameOver();
-        }
-        return incorrectAnswer;
-      });
+      onGameOver();
+      // setIncorrectAnswer((prevAnswer) => {
+      //   const newAnswer = prevAnswer + 1;
+      //   if (newAnswer >= 3) {
+      //     onGameOver();
+      //   }
+      //   return incorrectAnswer;
+      // });
     }
   };
 
@@ -91,6 +95,7 @@ const Grid: React.FC<GridProps> = ({
 };
 
 const App: React.FC = () => {
+  const router = useRouter()
   const [level, setLevel] = useState(1);
   const [highlightedKotak, setHighlightedKotak] = useState<number[]>([]);
   const [score, setScore] = useState(0); // Skor dimulai dari 0
@@ -125,20 +130,7 @@ const App: React.FC = () => {
   };
 
   const handleGameOver = () => {
-    Alert.alert("Game Over", "Anda telah membuat terlalu banyak kesalahan", [
-      {
-        text: "Play Again",
-        onPress: () => {
-          setLevel(1);
-          setScore(0);
-          setGameOver(false);
-        },
-      },
-      {
-        text: "Main Menu",
-        onPress: () => console.log("Pindah ke halaman lain"), // Ganti dengan navigasi ke halaman lain
-      },
-    ]);
+    router.push({ pathname: "/result", params: { score } });
     setGameOver(true);
   };
 

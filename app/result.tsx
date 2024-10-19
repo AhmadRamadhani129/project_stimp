@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLocalSearchParams, useRouter } from "expo-router"; // Gunakan useLocalSearchParams
 
-const ResultPage = ({ route, navigation }: any) => {
-  const { score } = route.params;
+const ResultPage = () => {
+  const router = useRouter();
+  const { score } = useLocalSearchParams(); // Ambil parameter dari navigasi
   const [username, setUsername] = useState("Player");
 
   // Ambil username dari AsyncStorage
@@ -31,17 +33,17 @@ const ResultPage = ({ route, navigation }: any) => {
       <View style={styles.buttonContainer}>
         <Button
           title="Play Again"
-          onPress={() => navigation.navigate("Game")} // Ganti dengan nama route 'Game'
+          onPress={() => router.push("/game")} // Navigasi ulang ke game
         />
         <View style={styles.buttonSpacing} />
         <Button
           title="High Score"
-          onPress={() => navigation.navigate("HighScore")} // Ganti dengan nama route 'HighScore'
+          onPress={() => router.push("/highscore")} // Navigasi ke halaman highscore
         />
         <View style={styles.buttonSpacing} />
         <Button
           title="Main Menu"
-          onPress={() => navigation.navigate("MainMenu")} // Ganti dengan nama route 'MainMenu'
+          onPress={() => router.push("/")} // Kembali ke halaman utama
         />
       </View>
     </View>
