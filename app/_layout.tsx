@@ -5,6 +5,7 @@ import { useEffect } from "react";
 function RootLayout() {
   const { isLoggedIn } = useAuth(); // Get logged-in status
   const router = useRouter();
+
   useEffect(() => {
     // Redirect based on login status
     if (!isLoggedIn) {
@@ -12,13 +13,14 @@ function RootLayout() {
       router.replace("/login");
     } else {
       // If logged in, redirect to index
-      router.replace("/");
+      router.replace("/drawer");
     }
   }, [isLoggedIn]);
 
   return (
     <Stack>
-      <Stack.Screen name="index" options={{ title: "Home" }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="drawer" options={{ headerShown: false }} />
       <Stack.Screen name="game" options={{ title: "Play Game" }} />
       <Stack.Screen name="highscore" options={{ title: "Highscore" }} />
       <Stack.Screen name="result" options={{ title:"Result" }} />

@@ -38,12 +38,12 @@ const ResultPage = () => {
         <View style={styles.buttonSpacing} />
         <Button
           title="High Score"
-          onPress={() => router.push("/highscore")} // Navigasi ke halaman highscore
+          onPress={() => router.push("/drawer/highscore")} // Navigasi ke halaman highscore
         />
         <View style={styles.buttonSpacing} />
         <Button
           title="Main Menu"
-          onPress={() => router.push("/")} // Kembali ke halaman utama
+          onPress={() => router.push("/drawer")} // Kembali ke halaman utama
         />
       </View>
     </View>

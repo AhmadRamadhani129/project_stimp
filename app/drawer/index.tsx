@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Button, Text, View, StyleSheet, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAuth } from "./authContext";
+import { useAuth } from "../authContext";
 
-export default function Index() {
+export default function Home() {
 
   const router = useRouter();
 
@@ -27,14 +27,6 @@ export default function Index() {
     }
   };
 
-  const doLogout = async () => {
-    try {
-      await AsyncStorage.removeItem("username");
-      alert("logged out");
-      logout();
-    } catch (e) {}
-  };
-
   useEffect(() => {
     cekLogin();
   }, [username]);
@@ -43,8 +35,6 @@ export default function Index() {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={{ color: "red", fontSize: 30 }}>Memory Pattern</Text>
       <Button title="Go to Game" onPress={() => router.push("/game")} />
-      <Button title="Go To Highscore" onPress={() => router.push("/highscore")} />
-      <Button title="Logout" onPress={() => doLogout()} />
     </ScrollView>
   );
 }
