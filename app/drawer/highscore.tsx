@@ -10,9 +10,11 @@ const HighScorePage: React.FC = () => {
       try {
         const highscoreStringList = await AsyncStorage.getItem('HighscoreShared');
         const highscoreList = highscoreStringList ? highscoreStringList.split(',').map(Number) : [];
-        
-        setHighscores(highscoreList);
+        const uniqueHighscores = Array.from(new Set(highscoreList)).sort((a, b) => b - a);
+
+        setHighscores(uniqueHighscores);
       } catch (error) {
+        
         console.error("Error fetching high scores:", error);
       }
     };

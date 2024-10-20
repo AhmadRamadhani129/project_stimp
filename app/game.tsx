@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Component } from "react";
 import { View, StyleSheet, Alert, Text } from "react-native";
-import { Button } from "@rneui/themed";
+import { Button, LinearProgress } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -110,6 +110,7 @@ const App: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const columns = 3; // Definisikan jumlah kolom tetap di sini
   const [count, setCount] = useState(60);
+  const batas = 60;
 
   useEffect(() => {
     const generateHighlightedKotak = () => {
@@ -181,6 +182,13 @@ const App: React.FC = () => {
     <View style={styles.appContainer}>
       <Text style={styles.scoreText}>Score: {score}</Text>
       <Text>Timer: {toHHMMSS(count)}</Text>
+      <LinearProgress
+        value={1 - count / batas} // Hitung progress berdasarkan waktu yang tersisa
+        color="red" // Warna progress
+        variant="determinate"
+        trackColor="#ddd" // Background progress
+        style={styles.progressBar} // Custom style progress bar
+      />
       <Grid
         rows={rows}
         columns={columns} // Menggunakan nilai kolom yang sudah didefinisikan
@@ -229,6 +237,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     height: "100%",
+  },
+  progressBar: {
+    height: 12, // Tinggi progress bar
+    borderRadius: 6, // Membuat sudut progress bar membulat
+    backgroundColor: "#ddd", // Background bar yang lebih terang
   },
 });
 
