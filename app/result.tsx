@@ -6,12 +6,12 @@ import { useLocalSearchParams, useRouter } from "expo-router"; // Gunakan useLoc
 const ResultPage = () => {
   const router = useRouter();
   const { score } = useLocalSearchParams(); // Ambil parameter dari navigasi
-  const [username, setUsername] = useState("Player");
+  const [username, setUsername] = useState("");
 
   // Ambil username dari AsyncStorage
   const getUsername = async () => {
     try {
-      const storedUsername = await AsyncStorage.getItem("username");
+      const storedUsername = await AsyncStorage.getItem("UsernameShared");
       if (storedUsername) {
         setUsername(storedUsername);
       }

@@ -1,39 +1,56 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Card } from "@rneui/base";
+
+interface Highscore {
+  username: string;
+  score: number;
+}
 
 const HighScorePage: React.FC = () => {
-  const [highscores, setHighscores] = useState<number[]>([]);
-  const [username, setUsername] = useState<string | null>(null);
+  const [highscores, setHighscores] = useState<Highscore[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Ambil daftar skor global dari AsyncStorage
+        const highscoreStringList = await AsyncStorage.getItem("GlobalHighscores");
 
-        const storedUsername = await AsyncStorage.getItem("UsernameShared");
+        // Jika ada data, parsing stringnya menjadi array of objects
+        let highscoreList: Highscore[] = highscoreStringList
+          ? JSON.parse(highscoreStringList)
+          : [];
 
-        if (storedUsername) {
-          setUsername(storedUsername);
+        // Buat objek untuk menyimpan skor tertinggi dari setiap pengguna
+        const userHighestScores: { [username: string]: number } = {};
 
-          const highscoreStringList = await AsyncStorage.getItem(
-            `Highscore_${storedUsername}`
-          );
-          
-          const highscoreList = highscoreStringList
-            ? highscoreStringList.split(",").map(Number)
-            : [];
+        // Loop untuk menentukan skor tertinggi dari setiap user
+        highscoreList.forEach((item) => {
+          if (
+            !userHighestScores[item.username] || 
+            userHighestScores[item.username] < item.score
+          ) {
+            userHighestScores[item.username] = item.score;
+          }
+        });
 
-          const uniqueHighscores = Array.from(new Set(highscoreList)).sort(
-            (a, b) => b - a
-          );
+        // Ubah objek menjadi array highscore yang valid
+        const uniqueHighscores = Object.keys(userHighestScores).map(
+          (username) => ({
+            username,
+            score: userHighestScores[username],
+          })
+        );
 
-          setHighscores(uniqueHighscores);
-        } else {
+        // Urutkan berdasarkan skor, dari yang tertinggi ke terendah
+        uniqueHighscores.sort((a, b) => b.score - a.score);
 
-          console.log(
-            "User belum login, tidak ada highscore untuk ditampilkan."
-          );
-        }
+        // Ambil hanya 3 skor teratas
+        const top3Highscores = uniqueHighscores.slice(0, 3);
+
+        // Set hasil ke state highscores
+        setHighscores(top3Highscores);
       } catch (error) {
         console.error("Error fetching high scores:", error);
       }
@@ -43,19 +60,22 @@ const HighScorePage: React.FC = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {username && <Text style={styles.username}>{username}</Text>}
-      <Text style={styles.title}>High Scores</Text>
-      {highscores.length === 0 ? (
-        <Text>No high scores yet!</Text>
-      ) : (
-        highscores.map((score, index) => (
-          <Text key={index} style={styles.scoreText}>
-            {index + 1}. {score}
-          </Text>
-        ))
-      )}
-    </View>
+    <Card>
+      <View style={styles.container}>
+        <Text style={styles.title}>Top 3 High Scores</Text>
+        <Card>
+          {highscores.length === 0 ? (
+            <Text>No high scores yet!</Text>
+          ) : (
+            highscores.map((item, index) => (
+              <Text key={index} style={styles.scoreText}>
+                {index + 1}. {item.username}: {item.score}
+              </Text>
+            ))
+          )}
+        </Card>
+      </View>
+    </Card>
   );
 };
 
@@ -70,11 +90,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-  },
-  username: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 10,
   },
   scoreText: {
     fontSize: 18,

@@ -143,9 +143,8 @@ const App: React.FC = () => {
 
   const nextLevel = () => {
     if (level < 5) {
-      // Maksimal level 3
       setLevel((prevLevel) => prevLevel + 1);
-      setScore((prevScore) => prevScore + 1); // Tambah 10 poin per level
+      setScore((prevScore) => prevScore + 1);
       setCount(60);
     } else {
       Alert.alert("Selamat!", "Anda telah menyelesaikan semua level!");
@@ -156,34 +155,32 @@ const App: React.FC = () => {
     try {
       // Ambil username dari AsyncStorage
       const storedUsername = await AsyncStorage.getItem("UsernameShared");
-
+  
       if (storedUsername) {
-        // Ambil skor yang sudah tersimpan untuk pengguna yang sedang login
-        const highscore = await AsyncStorage.getItem(
-          `Highscore_${storedUsername}`
-        );
-        let highscoreList = highscore ? highscore.split(",").map(Number) : [];
-
-        // Tambahkan skor baru ke dalam daftar
-        highscoreList.push(score);
-
-        // Simpan kembali ke AsyncStorage untuk user yang sedang login
+        // Ambil global highscore yang menyimpan semua skor dari semua pengguna
+        const globalHighscore = await AsyncStorage.getItem("GlobalHighscores");
+        let highscoreList = globalHighscore ? JSON.parse(globalHighscore) : [];
+  
+        // Tambahkan skor baru ke dalam daftar dengan username
+        highscoreList.push({ username: storedUsername, score });
+  
+        // Simpan kembali daftar skor ke AsyncStorage
         await AsyncStorage.setItem(
-          `Highscore_${storedUsername}`,
-          highscoreList.join(",")
+          "GlobalHighscores",
+          JSON.stringify(highscoreList)
         );
-
+  
         // Navigasi ke halaman hasil (ResultPage) dengan mengirim skor setelah penyimpanan selesai
         router.push({ pathname: "/result", params: { score } });
       } else {
         console.error("No user is logged in. Unable to save high score.");
       }
-
+  
       setGameOver(true);
     } catch (error) {
       console.error("Error saving high score:", error);
     }
-  };
+  };  
 
   const rows = 3 + level - 1; // 3 untuk level 1, 4 untuk level 2, 5 untuk level 3
 
