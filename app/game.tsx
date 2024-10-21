@@ -8,7 +8,7 @@ interface GridProps {
   rows: number;
   columns: number;
   highlightedKotak: number[];
-  onLevelComplete: () => void; // Fungsi untuk level up
+  onLevelComplete: () => void;
   onGameOver: () => void;
   score: number;
 }
@@ -42,9 +42,8 @@ const Grid: React.FC<GridProps> = ({
     if (highlightedKotak.includes(index)) {
       setActiveKotak((prevKotak) => [...prevKotak, index]);
 
-      // Jika semua kotak yang benar sudah ditekan
       if (activeKotak.length + 1 === highlightedKotak.length) {
-        onLevelComplete(); // Memanggil fungsi untuk menaikkan level
+        onLevelComplete();
       }
     } else {
       setIncorrectKotak((prevKotak) => [...prevKotak, index]);
@@ -84,13 +83,11 @@ const Grid: React.FC<GridProps> = ({
   );
 };
 
+//Membuat Timer
 function toHHMMSS(v: any) {
-  // Pastikan v bisa diubah menjadi angka
   const time = parseInt(v, 10);
-
-  // Jika v tidak bisa diubah menjadi angka (NaN), berikan return "Invalid input"
   if (isNaN(time)) {
-    return "Invalid input"; // Tampilkan pesan error jika input tidak valid
+    return "Invalid input"; 
   }
 
   const hours = Math.floor(time / 3600);
@@ -99,22 +96,22 @@ function toHHMMSS(v: any) {
   const hours_str = hours < 10 ? "0" + hours : hours.toString();
   const minutes_str = minutes < 10 ? "0" + minutes : minutes.toString();
   const seconds_str = seconds < 10 ? "0" + seconds : seconds.toString();
-  return hours_str + ":" + minutes_str + ":" + seconds_str; // Menggunakan template string
+  return hours_str + ":" + minutes_str + ":" + seconds_str; 
 }
 
 const App: React.FC = () => {
   const router = useRouter();
   const [level, setLevel] = useState(1);
   const [highlightedKotak, setHighlightedKotak] = useState<number[]>([]);
-  const [score, setScore] = useState(0); // Skor dimulai dari 0
+  const [score, setScore] = useState(0); 
   const [gameOver, setGameOver] = useState(false);
-  const columns = 3; // Definisikan jumlah kolom tetap di sini
+  const columns = 3; 
   const [count, setCount] = useState(60);
   const batas = 60;
 
   useEffect(() => {
     const generateHighlightedKotak = () => {
-      const numberOfKotakToHighlight = level + 2; // 3 untuk level 1, 4 untuk level 2, 5 untuk level 3
+      const numberOfKotakToHighlight = level + 2; 
       const kotakToHighlight: number[] = [];
 
       while (kotakToHighlight.length < numberOfKotakToHighlight) {
@@ -135,9 +132,9 @@ const App: React.FC = () => {
         setCount((prevCount) => prevCount - 1);
       }, 1000);
 
-      return () => clearInterval(timer); // Bersihkan interval ketika komponen di-unmount atau count berubah
+      return () => clearInterval(timer); 
     } else {
-      handleGameOver(); // Timer habis, jalankan game over
+      handleGameOver(); 
     }
   }, [count]);
 
@@ -150,31 +147,23 @@ const App: React.FC = () => {
       setScore((prevScore) => prevScore + 1); 
       setTimeout(() => {
         Alert.alert("Selamat!", "Anda telah menyelesaikan semua level!");
-        handleGameOver(); // Move to game over after score increment
-      }, 0); // Delay to allow score update to complete
+        handleGameOver(); 
+      }, 0); 
     }
   };
   
   const handleGameOver = async () => {
     try {
-      // Ambil username dari AsyncStorage
-      const storedUsername = await AsyncStorage.getItem("UsernameShared");
-  
-      if (storedUsername) {
-        // Ambil global highscore yang menyimpan semua skor dari semua pengguna
+      //Mengambil Username dari Async Storage
+      const storedUsername = await AsyncStorage.getItem("UsernameShared");    
+      if (storedUsername) { 
         const globalHighscore = await AsyncStorage.getItem("GlobalHighscores");
-        let highscoreList = globalHighscore ? JSON.parse(globalHighscore) : [];
-  
-        // Tambahkan skor baru ke dalam daftar dengan username
+        let highscoreList = globalHighscore ? JSON.parse(globalHighscore) : []; //Mengubah data yang didapat jadi json
         highscoreList.push({ username: storedUsername, score });
-  
-        // Simpan kembali daftar skor ke AsyncStorage
         await AsyncStorage.setItem(
           "GlobalHighscores",
-          JSON.stringify(highscoreList)
+          JSON.stringify(highscoreList) //Mengubah json jadi string
         );
-  
-        // Navigasi ke halaman hasil (ResultPage) dengan mengirim skor setelah penyimpanan selesai
         router.push({ pathname: "/result", params: { score } });
       } else {
         console.error("No user is logged in. Unable to save high score.");
@@ -186,31 +175,24 @@ const App: React.FC = () => {
     }
   };
      
-
-  const rows = 3 + level - 1; // 3 untuk level 1, 4 untuk level 2, 5 untuk level 3
+  const rows = 3 + level - 1; 
 
   if (gameOver) {
-    return null; // Ketika game over, hentikan rendering game
+    return null;
   }
 
   return (
     <View style={styles.appContainer}>
       <Text style={styles.scoreText}>Score: {score}</Text>
+      <Text style={styles.levelText}>Level: {level}</Text>
       <Text>Timer: {toHHMMSS(count)}</Text>
-      <LinearProgress
-        value={1 - count / batas} // Hitung progress berdasarkan waktu yang tersisa
-        color="red" // Warna progress
-        variant="determinate"
-        trackColor="#ddd" // Background progress
-        style={styles.progressBar} // Custom style progress bar
-      />
       <Grid
         rows={rows}
-        columns={columns} // Menggunakan nilai kolom yang sudah didefinisikan
+        columns={columns} 
         highlightedKotak={highlightedKotak}
-        onLevelComplete={nextLevel} // Mengirim fungsi untuk level up
-        onGameOver={handleGameOver} // Mengirim fungsi untuk game over
-        score={score} // Kirim skor ke komponen grid
+        onLevelComplete={nextLevel} 
+        onGameOver={handleGameOver} 
+        score={score} 
       />
     </View>
   );
@@ -253,10 +235,10 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  progressBar: {
-    height: 12, // Tinggi progress bar
-    borderRadius: 6, // Membuat sudut progress bar membulat
-    backgroundColor: "#ddd", // Background bar yang lebih terang
+  levelText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
 });
 
