@@ -40,8 +40,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Function to handle login
   const login = async () => {
-    await AsyncStorage.setItem("userToken", "dummy-token"); // Store token
+    await AsyncStorage.setItem("userToken", "dummy-token");
+    console.log("Auth") // Store token
     setIsLoggedIn(true);
+
   };
 
   // Function to handle logout

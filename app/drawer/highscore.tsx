@@ -4,26 +4,47 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HighScorePage: React.FC = () => {
   const [highscores, setHighscores] = useState<number[]>([]);
-  
-  useEffect(() => {
-    const fetchHighScores = async () => {
-      try {
-        const highscoreStringList = await AsyncStorage.getItem('HighscoreShared');
-        const highscoreList = highscoreStringList ? highscoreStringList.split(',').map(Number) : [];
-        const uniqueHighscores = Array.from(new Set(highscoreList)).sort((a, b) => b - a);
+  const [username, setUsername] = useState<string | null>(null);
 
-        setHighscores(uniqueHighscores);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+
+        const storedUsername = await AsyncStorage.getItem("UsernameShared");
+
+        if (storedUsername) {
+          setUsername(storedUsername);
+
+          const highscoreStringList = await AsyncStorage.getItem(
+            `Highscore_${storedUsername}`
+          );
+          
+          const highscoreList = highscoreStringList
+            ? highscoreStringList.split(",").map(Number)
+            : [];
+
+          const uniqueHighscores = Array.from(new Set(highscoreList)).sort(
+            (a, b) => b - a
+          );
+
+          setHighscores(uniqueHighscores);
+        } else {
+
+          console.log(
+            "User belum login, tidak ada highscore untuk ditampilkan."
+          );
+        }
       } catch (error) {
-        
         console.error("Error fetching high scores:", error);
       }
     };
-    
-    fetchHighScores();
+
+    fetchData();
   }, []);
 
   return (
     <View style={styles.container}>
+      {username && <Text style={styles.username}>{username}</Text>}
       <Text style={styles.title}>High Scores</Text>
       {highscores.length === 0 ? (
         <Text>No high scores yet!</Text>
@@ -49,6 +70,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+  },
+  username: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 10,
   },
   scoreText: {
     fontSize: 18,

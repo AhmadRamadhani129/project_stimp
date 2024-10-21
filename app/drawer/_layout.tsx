@@ -10,7 +10,7 @@ export default function DrawerLayout() {
     <Drawer.Navigator initialRouteName="index">
       <Drawer.Screen name="Home" component={Home}
                      options={{ drawerLabel: 'Home' }} />
-     <Drawer.Screen name="Highscore" component={HighScore}
+     <Drawer.Screen name="highscore" component={HighScore}
                      options={{ drawerLabel: 'Highscore' }} />
      <Drawer.Screen name="Logout" component={Logout}
                      options={{ drawerLabel: 'Logout' }} />

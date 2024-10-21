@@ -153,20 +153,33 @@ const App: React.FC = () => {
   };
 
   const handleGameOver = async () => {
-    router.push({ pathname: "/result", params: { score } });
-    setGameOver(true);
     try {
-      // Ambil skor yang sudah tersimpan
-      const highscore = await AsyncStorage.getItem("HighscoreShared");
-      let highscoreList = highscore ? highscore.split(",").map(Number) : [];
+      // Ambil username dari AsyncStorage
+      const storedUsername = await AsyncStorage.getItem("UsernameShared");
 
-      // Tambahkan skor baru ke dalam daftar
-      highscoreList.push(score);
+      if (storedUsername) {
+        // Ambil skor yang sudah tersimpan untuk pengguna yang sedang login
+        const highscore = await AsyncStorage.getItem(
+          `Highscore_${storedUsername}`
+        );
+        let highscoreList = highscore ? highscore.split(",").map(Number) : [];
 
-      // Simpan kembali ke AsyncStorage
-      await AsyncStorage.setItem("HighscoreShared", highscoreList.join(","));
+        // Tambahkan skor baru ke dalam daftar
+        highscoreList.push(score);
 
-      // Navigasi ke halaman hasil (ResultPage) dengan mengirim skor
+        // Simpan kembali ke AsyncStorage untuk user yang sedang login
+        await AsyncStorage.setItem(
+          `Highscore_${storedUsername}`,
+          highscoreList.join(",")
+        );
+
+        // Navigasi ke halaman hasil (ResultPage) dengan mengirim skor setelah penyimpanan selesai
+        router.push({ pathname: "/result", params: { score } });
+      } else {
+        console.error("No user is logged in. Unable to save high score.");
+      }
+
+      setGameOver(true);
     } catch (error) {
       console.error("Error saving high score:", error);
     }

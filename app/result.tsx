@@ -37,7 +37,7 @@ const ResultPage = () => {
         />
         <View style={styles.buttonSpacing} />
         <Button
-          title="High Score"
+          title="HighScore"
           onPress={() => router.push("/drawer/highscore")} // Navigasi ke halaman highscore
         />
         <View style={styles.buttonSpacing} />
