@@ -60,11 +60,11 @@ const HighScorePage: React.FC = () => {
   const getImage = (index: number) => {
     switch (index) {
       case 0:
-        return require("./assets/medali-emas.png");
+        return require("../../assets/images/medali-emas.png");
       case 1:
-        return require("./assets/medali-perak.png"); 
+        return require("../../assets/images/medali-perak.png"); 
       case 2:
-        return require("./assets/medali-perunggu.png");
+        return require("../../assets/images/medali-perunggu.png");
       default:
         return null;
     }
@@ -73,7 +73,7 @@ const HighScorePage: React.FC = () => {
   return (
     <Card>
       <View style={styles.container}>
-        <Text style={styles.title}>Highscores</Text>
+        <Text style={styles.title}>Top 3 Highscores</Text>
         <Card>
           {highscores.length === 0 ? (
             <Text>No high scores yet!</Text>

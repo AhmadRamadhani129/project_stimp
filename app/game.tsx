@@ -147,10 +147,14 @@ const App: React.FC = () => {
       setScore((prevScore) => prevScore + 1);
       setCount(60);
     } else {
-      Alert.alert("Selamat!", "Anda telah menyelesaikan semua level!");
+      setScore((prevScore) => prevScore + 1); 
+      setTimeout(() => {
+        Alert.alert("Selamat!", "Anda telah menyelesaikan semua level!");
+        handleGameOver(); // Move to game over after score increment
+      }, 0); // Delay to allow score update to complete
     }
   };
-
+  
   const handleGameOver = async () => {
     try {
       // Ambil username dari AsyncStorage
@@ -180,7 +184,8 @@ const App: React.FC = () => {
     } catch (error) {
       console.error("Error saving high score:", error);
     }
-  };  
+  };
+     
 
   const rows = 3 + level - 1; // 3 untuk level 1, 4 untuk level 2, 5 untuk level 3
 
