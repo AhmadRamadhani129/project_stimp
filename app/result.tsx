@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useLocalSearchParams, useRouter } from "expo-router"; // Gunakan useLocalSearchParams
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 const ResultPage = () => {
   const router = useRouter();
-  const { score } = useLocalSearchParams(); // Ambil parameter dari navigasi
+  const { score } = useLocalSearchParams(); 
   const [username, setUsername] = useState("");
 
-  // Ambil username dari AsyncStorage
   const getUsername = async () => {
     try {
       const storedUsername = await AsyncStorage.getItem("UsernameShared");
@@ -33,17 +32,17 @@ const ResultPage = () => {
       <View style={styles.buttonContainer}>
         <Button
           title="Play Again"
-          onPress={() => router.push("/game")} // Navigasi ulang ke game
+          onPress={() => router.push("/game")}
         />
         <View style={styles.buttonSpacing} />
         <Button
           title="HighScore"
-          onPress={() => router.push("/drawer/highscore")} // Navigasi ke halaman highscore
+          onPress={() => router.push("/drawer/highscore")}
         />
         <View style={styles.buttonSpacing} />
         <Button
           title="Main Menu"
-          onPress={() => router.push("/drawer")} // Kembali ke halaman utama
+          onPress={() => router.push("/drawer")}
         />
       </View>
     </View>
@@ -76,7 +75,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonSpacing: {
-    width: 10, // Jarak antara tombol
+    width: 10,
   },
 });
 

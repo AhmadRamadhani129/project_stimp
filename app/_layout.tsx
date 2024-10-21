@@ -3,16 +3,13 @@ import { AuthProvider, useAuth } from "./authContext";
 import { useEffect } from "react";
 
 function RootLayout() {
-  const { isLoggedIn } = useAuth(); // Get logged-in status
+  const { isLoggedIn } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect based on login status
     if (!isLoggedIn) {
-      // If not logged in, redirect to login screen
       router.replace("/login");
     } else {
-      // If logged in, redirect to index
       router.replace("/drawer");
     }
   }, [isLoggedIn]);
