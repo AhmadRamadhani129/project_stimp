@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Component } from "react";
 import { View, StyleSheet, Alert, Text } from "react-native";
-import { Button, LinearProgress } from "@rneui/themed";
+import { Button } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -39,6 +39,11 @@ const Grid: React.FC<GridProps> = ({
   }, [highlightedKotak]);
 
   const handleBoxPress = (index: number) => {
+    // Cek apakah kotak sudah diklik sebelumnya
+    if (activeKotak.includes(index) || incorrectKotak.includes(index)) {
+      return;
+    }
+
     if (highlightedKotak.includes(index)) {
       setActiveKotak((prevKotak) => [...prevKotak, index]);
 
@@ -87,7 +92,7 @@ const Grid: React.FC<GridProps> = ({
 function toHHMMSS(v: any) {
   const time = parseInt(v, 10);
   if (isNaN(time)) {
-    return "Invalid input"; 
+    return "Invalid input";
   }
 
   const hours = Math.floor(time / 3600);
@@ -96,22 +101,22 @@ function toHHMMSS(v: any) {
   const hours_str = hours < 10 ? "0" + hours : hours.toString();
   const minutes_str = minutes < 10 ? "0" + minutes : minutes.toString();
   const seconds_str = seconds < 10 ? "0" + seconds : seconds.toString();
-  return hours_str + ":" + minutes_str + ":" + seconds_str; 
+  return hours_str + ":" + minutes_str + ":" + seconds_str;
 }
 
 const App: React.FC = () => {
   const router = useRouter();
   const [level, setLevel] = useState(1);
   const [highlightedKotak, setHighlightedKotak] = useState<number[]>([]);
-  const [score, setScore] = useState(0); 
+  const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
-  const columns = 3; 
+  const columns = 3;
   const [count, setCount] = useState(60);
   const batas = 60;
 
   useEffect(() => {
     const generateHighlightedKotak = () => {
-      const numberOfKotakToHighlight = level + 2; 
+      const numberOfKotakToHighlight = level + 2;
       const kotakToHighlight: number[] = [];
 
       while (kotakToHighlight.length < numberOfKotakToHighlight) {
@@ -132,9 +137,9 @@ const App: React.FC = () => {
         setCount((prevCount) => prevCount - 1);
       }, 1000);
 
-      return () => clearInterval(timer); 
+      return () => clearInterval(timer);
     } else {
-      handleGameOver(); 
+      handleGameOver();
     }
   }, [count]);
 
@@ -144,19 +149,19 @@ const App: React.FC = () => {
       setScore((prevScore) => prevScore + 1);
       setCount(60);
     } else {
-      setScore((prevScore) => prevScore + 1); 
+      setScore((prevScore) => prevScore + 1);
       setTimeout(() => {
         Alert.alert("Selamat!", "Anda telah menyelesaikan semua level!");
-        handleGameOver(); 
-      }, 0); 
+        handleGameOver();
+      }, 0);
     }
   };
-  
+
   const handleGameOver = async () => {
     try {
       //Mengambil Username dari Async Storage
-      const storedUsername = await AsyncStorage.getItem("UsernameShared");    
-      if (storedUsername) { 
+      const storedUsername = await AsyncStorage.getItem("UsernameShared");
+      if (storedUsername) {
         const globalHighscore = await AsyncStorage.getItem("GlobalHighscores");
         let highscoreList = globalHighscore ? JSON.parse(globalHighscore) : []; //Mengubah data yang didapat jadi json
         highscoreList.push({ username: storedUsername, score });
@@ -168,14 +173,14 @@ const App: React.FC = () => {
       } else {
         console.error("No user is logged in. Unable to save high score.");
       }
-  
+
       setGameOver(true);
     } catch (error) {
       console.error("Error saving high score:", error);
     }
   };
-     
-  const rows = 3 + level - 1; 
+
+  const rows = 3 + level - 1;
 
   if (gameOver) {
     return null;
@@ -188,11 +193,11 @@ const App: React.FC = () => {
       <Text>Timer: {toHHMMSS(count)}</Text>
       <Grid
         rows={rows}
-        columns={columns} 
+        columns={columns}
         highlightedKotak={highlightedKotak}
-        onLevelComplete={nextLevel} 
-        onGameOver={handleGameOver} 
-        score={score} 
+        onLevelComplete={nextLevel}
+        onGameOver={handleGameOver}
+        score={score}
       />
     </View>
   );
