@@ -25,7 +25,7 @@ const HighScorePage: React.FC = () => {
 
         const userHighestScores: { [username: string]: number } = {};
 
-        // Loop untuk menentukan skor tertinggi dari setiap user
+        // Menentukan skor tertinggi dari setiap user
         highscoreList.forEach((item) => {
           if (
             !userHighestScores[item.username] ||
